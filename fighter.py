@@ -10,7 +10,7 @@ class Fighter(pygame.sprite.Sprite):
         #graphics setup
         self.idle = aseprite.get_animation('Idle')
         self.frame_index = 0
-        self.status = 'right'
+        self.status = 'left'
 
         #image setup
         self.image = self.idle[self.frame_index]
@@ -28,6 +28,11 @@ class Fighter(pygame.sprite.Sprite):
             self.frame_index = 0
 
         self.image = self.idle[int(self.frame_index)]
+
+        if self.status == 'left':
+            self.image = pygame.transform.flip(self.image, True, False)
+        
+
 
     def draw(self):
         self.surface.blit(self.image, self.pos)
