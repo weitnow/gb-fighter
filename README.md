@@ -2,4 +2,4 @@
 small fighter prototype written with python and the pygame library
 
 ## Preview
-![](https://github.com/weitnow/pygame_shooter/blob/master/Preview.gif)
+![](https://github.com/weitnow/gb_fighter/blob/main/Preview.png)
