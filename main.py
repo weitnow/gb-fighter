@@ -2,6 +2,7 @@ import pygame, sys
 import settings.window
 from text import Text
 from fighter import Fighter
+from pygame.math import Vector2
 from utils import aseprite
 
 class Main:
@@ -20,16 +21,27 @@ class Main:
         self.background = pygame.image.load('./graphics/stage.png').convert_alpha()
         self.background = pygame.transform.scale(self.background, (256 * 5, 96 * 5))
 
-
         self.setup()
-    
+
+        #music
+        self.music = pygame.mixer.Sound('./music/guile_music.mp3')
+        self.music.play(loops = -1)
+
     def setup(self):
         aseprite.anim_import(path_to_jsonfile='./graphics/gbFighter.json', path_to_pngfile='./graphics/gbFighter.png', zoomfactor=6)
 
-        self.fighter1 = Fighter(self.display_surface, (400, 280))
-        self.fighter1.status = 'right'
-        self.fighter1.idle = aseprite.get_animation('B Move')
-        self.fighter2 = Fighter(self.display_surface, (700, 280))
+        self.fighter1 = Fighter(self.display_surface, Vector2(400, 280))
+        self.fighter2 = Fighter(self.display_surface, Vector2(700, 280))
+        self.fighter2.ai = True
+
+    
+    def flip_players_towards_each_other(self):
+        if self.fighter1.pos.x >= self.fighter2.pos.x:
+            self.fighter1.status = 'left'
+            self.fighter2.status = 'right'
+        else:
+            self.fighter1.status = 'right'
+            self.fighter2.status = 'left'
 
 
     def run(self):
@@ -45,6 +57,7 @@ class Main:
 
             self.fighter1.update(dt)
             self.fighter2.update(dt)
+            self.flip_players_towards_each_other()
 
             pygame.display.update()
 
