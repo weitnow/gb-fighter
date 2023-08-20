@@ -3,6 +3,13 @@ import pygame
 
 class Aseprite():
 
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(Aseprite, cls).__new__(cls)
+        else:
+            print("Aseprite is a singelton and already instanciated")
+        return cls.instance
+
     def __init__(self) -> None:
         self.frameobj = None
         self.frameTags = None
@@ -45,6 +52,8 @@ class Aseprite():
         self.frameobj = frameobj
         self.frameTags = frameTags
 
+        self.store_animation_names()
+
         return [frameobj, frameTags]
     
 
@@ -53,6 +62,11 @@ class Aseprite():
             self.anim_names.append(anim_dict['name'])
 
     def get_animation(self, anim_name: str) -> list[pygame.Surface]:
+        """expects the name of the aseprite animation and returns a list with all the frames for the animation as pygame-surfaces"""
+        
+        if anim_name not in self.anim_names:
+            raise Exception(f'{anim_name} is not a valid anim_name')
+        
         new_anim_list = []
         for anim_dict in self.frameTags:
             if anim_dict['name'] == anim_name:
@@ -66,7 +80,6 @@ aseprite = Aseprite()
 
 if __name__ == '__main__':
    aseprite.anim_import(path_to_jsonfile='./graphics/gbFighter.json', path_to_pngfile='./graphics/gbFighter.png', zoomfactor=6)
-   aseprite.store_animation_names()
    aseprite.get_animation('Idle')
 
 
