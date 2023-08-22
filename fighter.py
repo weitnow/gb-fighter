@@ -1,6 +1,6 @@
 import pygame
 from pygame.math import Vector2
-from utils import aseprite
+from utils import aseprite, joystick
 import settings
 
 class Fighter(pygame.sprite.Sprite):
@@ -23,8 +23,10 @@ class Fighter(pygame.sprite.Sprite):
         self.direction = Vector2()
         self.pos = pos
         self.speed = 400
-        self.jump_speed = 1050
+        self.jump_speed = 960
         self.on_floor = True
+
+
 
         self.ai = False
         
@@ -59,18 +61,24 @@ class Fighter(pygame.sprite.Sprite):
         self.surface.blit(self.image, self.rect)
 
     def input(self):
+
         if self.ai:
             return
+        
+
+
+        joystick.update()
+
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] or joystick.dpad_right:
             self.direction.x = 1
-        elif keys[pygame.K_a]:
+        elif keys[pygame.K_a] or joystick.dpad_left:
             self.direction.x = -1
         else:
             self.direction.x = 0
 
-        if keys[pygame.K_w] and self.on_floor:
+        if keys[pygame.K_w] or joystick.dpad_up and self.on_floor:
             self.direction.y = -self.jump_speed
             self.on_floor = False
 
@@ -97,7 +105,7 @@ class Fighter(pygame.sprite.Sprite):
 
     def apply_gravity(self, dt):
         if self.pos.y < 280:
-            self.direction.y += settings.game.GRAVITY
+            self.direction.y += settings.game.GRAVITY * dt
         if self.pos.y > 280:
             self.pos.y = 280
             self.direction.y = 0

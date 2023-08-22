@@ -1,5 +1,6 @@
 import json
 import pygame
+import text
 
 class Aseprite():
 
@@ -77,6 +78,66 @@ class Aseprite():
 
 
 aseprite = Aseprite()
+
+class Joystick():
+
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(Joystick, cls).__new__(cls)
+        else:
+            print("Joystick is a singelton and already instanciated")
+        return cls.instance
+
+    def __init__(self):
+        
+
+        self.x_pressed = False
+        self.a_pressed = False
+        self.y_pressed = False
+        self.b_pressed = False
+
+        self.dpad_right = False
+        self.dpad_left = False
+        self.dpad_up = False
+        self.dpad_down = False
+
+        pygame.joystick.init()
+        self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
+
+
+
+    def update(self):
+
+        self.x_pressed = False
+        self.a_pressed = False
+        self.y_pressed = False
+        self.b_pressed = False
+
+        self.dpad_right = False
+        self.dpad_left = False
+        self.dpad_up = False
+        self.dpad_down = False
+
+        for joystick in self.joysticks:
+            if joystick.get_button(0):
+                self.a_pressed = True
+            if joystick.get_button(1):
+                self.b_pressed = True
+            if joystick.get_button(2):
+                self.x_pressed = True
+            if joystick.get_button(3):
+                self.y_pressed = True
+            if (joystick.get_hat(0))[1] == -1:
+                self.dpad_down = True
+            if (joystick.get_hat(0))[1] == 1:
+                self.dpad_up = True
+            if (joystick.get_hat(0))[0] == -1:
+                self.dpad_left = True
+            if (joystick.get_hat(0))[0] == 1:
+                self.dpad_right = True
+
+        
+joystick = Joystick()          
 
 if __name__ == '__main__':
    aseprite.anim_import(path_to_jsonfile='./graphics/gbFighter.json', path_to_pngfile='./graphics/gbFighter.png', zoomfactor=6)

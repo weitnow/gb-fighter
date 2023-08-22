@@ -1,9 +1,9 @@
 import pygame, sys
 import settings.game
-from text import Text
 from fighter import Fighter
 from pygame.math import Vector2
 from utils import aseprite
+
 
 class Main:
     def __init__(self) -> None:
@@ -11,12 +11,6 @@ class Main:
         self.screen = pygame.display.set_mode((settings.game.WINDOW_WIDTH, settings.game.WINDOW_HEIGHT))
         pygame.display.set_caption(settings.game.TITLE)
         self.clock = pygame.time.Clock()
-
-        background_width = 256
-        background_height = 96
-
-        screen_width = 1280
-        screen_height = 720
 
         self.background = pygame.image.load('./graphics/stage.png').convert_alpha()
         self.background = pygame.transform.scale(self.background, (256 * 5, 96 * 5))
@@ -34,6 +28,7 @@ class Main:
         self.fighter1 = Fighter(self.screen, Vector2(400, 280))
         self.fighter2 = Fighter(self.screen, Vector2(700, 280))
         self.fighter2.ai = True
+
 
     
     def face_players_each_other(self):
@@ -59,6 +54,8 @@ class Main:
             self.fighter1.update(dt)
             self.fighter2.update(dt)
             self.face_players_each_other()
+ 
+
 
             pygame.display.update()
 

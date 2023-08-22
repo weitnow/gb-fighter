@@ -1,12 +1,10 @@
 import pygame
 import settings.color
 
-class Text:
-    def __init__(self):
-        font = pygame.font.Font('freesansbold.ttf', 32)
-
-        text = font.render('Drucker1', True, settings.color.GREEN, settings.color.BLUE)
-
-        textRect = text.get_rect()
-
-        textRect.center = (100, 100)
+def draw_text(text: str, x: int, y: int, screen: pygame.surface, font: str = 'freesansbold.ttf', size: int = 32, text_color: tuple = (255, 255, 255), bg_color: tuple = (0, 0, 0)):
+    font = pygame.font.Font(font, size)
+    text = font.render(text, True, text_color, bg_color)
+    textRect = text.get_rect()
+    textRect = (x, y)
+    screen.blit(text, textRect)
+    
