@@ -64,8 +64,6 @@ class Fighter(pygame.sprite.Sprite):
 
         if self.ai:
             return
-        
-
 
         joystick.update()
 
@@ -81,6 +79,9 @@ class Fighter(pygame.sprite.Sprite):
         if keys[pygame.K_w] or joystick.dpad_up and self.on_floor:
             self.direction.y = -self.jump_speed
             self.on_floor = False
+
+        if joystick.a_pressed and self.on_floor:
+            pass
 
     def move(self, dt):
         if self.ai:
