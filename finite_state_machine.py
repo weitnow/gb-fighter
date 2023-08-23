@@ -1,6 +1,66 @@
 from enum import Enum, auto
 import time
 
+
+
+class Emily():
+    def __init__(self):
+        self.current_state = 'init'
+        self.prev_state = ''
+        self.new_state = ''
+
+        self.running_count = 0
+
+    def update_state(self):
+        if self.new_state != '':
+            if new_state != self.current_state:
+                init_method = "_init_" + self.new_state 
+                end_method = "_end_" + self.current_state
+
+                self.if_has_method_call_it(end_method)
+
+                self.prev_state = self.current_state
+                self.current_state = self.new_state
+                self.new_state = ''
+
+                self.if_has_method_call_it(init_method)
+
+            else:
+                new_state = ''
+      
+    def if_has_method_call_it(self, method: str):
+        if hasattr(self, method) and callable(getattr(self, method)):
+            method = getattr(self, method)
+            method()
+
+    def process_state(self):
+        self.if_has_method_call_it('_' + self.current_state)
+
+    def _init(self):
+        self.new_state = "running"
+        print("Example init")
+
+    def _init_running(self):
+        print("Entering run mode")
+
+    def _running(self):
+        print("I am running so fast rn ngl")
+        self.running_count += 1
+        if self.running_count >= 10:
+            self.new_state = "stopped"
+
+    def _end_running(self):
+        print("Okay, slowing down now, ending running")
+
+    def _init_stopped(self):
+        print("System has stopped")
+
+
+il_gatto = Emily()
+for i in range(12):
+    il_gatto.process_state()
+
+
 class States(Enum):
     IDLE = auto()
     CHASE = auto()
@@ -39,7 +99,7 @@ player.set_state(States.ATTACK)
 enemy = Entity()
 enemy.set_state(States.CHASE)
 
-while True:
+while False:
     if player.get_state() == States.ATTACK:
         print("player attacking!")
         enemy.sub_health()
@@ -62,6 +122,6 @@ while True:
 
     time.sleep(1)
 
-print("------------------------------")
+""" print("------------------------------")
 print("player's health ", player.get_health())
-print("enemy's health ", enemy.get_health())
+print("enemy's health ", enemy.get_health()) """

@@ -111,6 +111,7 @@ class Fighter(pygame.sprite.Sprite):
             self.pos.y = 280
             self.direction.y = 0
             self.on_floor = True
+
        
 
 
