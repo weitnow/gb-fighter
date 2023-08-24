@@ -3,6 +3,43 @@ import time
 
 
 
+
+class State():
+    def __init__(self):
+        self.state_finished = False
+
+    def _enter_state(self) -> None:
+        pass
+
+    def _exit_state(self) -> None:
+        print("exiting")
+
+class FiniteStateMachine():
+
+    def __init__(self) -> None:
+        self.state = State()
+    def change_state(self, new_state: State):
+        if isinstance(self.state, State):
+            self.state._exit_state()
+        new_state._enter_state()
+        state = new_state
+
+class EnemyWanderState(State):
+    def __init__(self) -> None:
+        super().__init__()
+        self.actor = Enemy()
+
+
+class Enemy(FiniteStateMachine):
+    def __init__(self) -> None:
+        super().__init__()
+        self.max_speed = 40
+        self.acceleration = 50
+
+goblin = Enemy()
+goblin.change_state(EnemyWanderState())
+
+################################ Variante 2 ###############################################
 class Emily():
     def __init__(self):
         self.current_state = 'init'
@@ -13,7 +50,7 @@ class Emily():
 
     def update_state(self):
         if self.new_state != '':
-            if new_state != self.current_state:
+            if self.new_state != self.current_state:
                 init_method = "_init_" + self.new_state 
                 end_method = "_end_" + self.current_state
 
@@ -26,7 +63,7 @@ class Emily():
                 self.if_has_method_call_it(init_method)
 
             else:
-                new_state = ''
+                self.new_state = ''
       
     def if_has_method_call_it(self, method: str):
         if hasattr(self, method) and callable(getattr(self, method)):
@@ -56,10 +93,13 @@ class Emily():
         print("System has stopped")
 
 
-il_gatto = Emily()
+""" il_gatto = Emily()
 for i in range(12):
     il_gatto.process_state()
+    il_gatto.update_state() """
 
+
+################################ Variante 3 ###############################################
 
 class States(Enum):
     IDLE = auto()

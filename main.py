@@ -29,16 +29,13 @@ class Main:
         self.fighter2 = Fighter(self.screen, Vector2(700, 280))
         self.fighter2.ai = True
 
-
-    
     def face_players_each_other(self):
         if self.fighter1.rect.x >= self.fighter2.rect.x:
             self.fighter1.facing = 'left'
             self.fighter2.facing = 'right'
         else:
             self.fighter1.facing = 'right'
-            self.fighter2.facing = 'left'
-
+            self.fighter2.facing = 'left'  
 
     def run(self):
         while True:
@@ -55,8 +52,6 @@ class Main:
             self.fighter2.update(dt)
             self.face_players_each_other()
  
-
-
             pygame.display.update()
 
 

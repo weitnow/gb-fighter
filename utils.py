@@ -105,7 +105,6 @@ class Joystick():
         self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 
 
-
     def update(self):
 
         self.x_pressed = False
