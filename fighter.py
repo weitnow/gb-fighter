@@ -3,9 +3,11 @@ from pygame.math import Vector2
 from utils import aseprite, joystick
 import settings
 class State():
-    def __init__(self):
+    def __init__(self, actor):
+        self.actor = actor
         self.frame_index = 0
         self.animation = aseprite.get_animation('Idle')
+        self.image = self.animation[self.frame_index]
 
     def update_state(self, dt) -> None:
         self.frame_index += 7 * dt
@@ -16,54 +18,55 @@ class State():
         print("Enter State")
 
     def render_state(self) -> None:
-        print("Rendering State")
+        self.image = self.animation[int(self.frame_index)]
+
+        if self.actor.facing == 'left':
+            self.image = pygame.transform.flip(self.image, True, False)
+
+        self.actor.surface.blit(self.image, self.actor.rect)
 
     def _exit_state(self) -> None:
         print("Exiting State")
 
 class IdleState(State):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, actor) -> None:
+        super().__init__(actor)
         
-
     def _enter_state(self) -> None:
         self.frame_index = 0
         self.animation = aseprite.get_animation('Idle')
-
-    def render_state(self) -> None:
-
-        print("rendering idle")
         
 
+    def render_state(self) -> None:
+        super().render_state()
+      
     def _exit_state(self) -> None:
         print("Exiting IdleState")
 
-
 class WalkingState(State):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, actor) -> None:
+        super().__init__(actor)
 
     def _enter_state(self) -> None:
         self.frame_index = 0
         self.animation = aseprite.get_animation('Walking')
 
     def render_state(self) -> None:
-        print("rendering walking")
-        
+        super().render_state()
 
     def _exit_state(self) -> None:
         print("Exiting WalkingState")
 
 class JumpState(State):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, actor) -> None:
+        super().__init__(actor)
 
     def _enter_state(self) -> None:
         self.frame_index = 0
         self.animation = aseprite.get_animation('Jump')
 
     def render_state(self) -> None:
-        print("rendering jump")
+        super().render_state()
         
 
     def _exit_state(self) -> None:
@@ -77,9 +80,9 @@ class Fighter(pygame.sprite.Sprite):
         super().__init__()
 
         self.states = {
-            "idle" : IdleState(),
-            "walking" : WalkingState(),
-            "jump" : JumpState()
+            "idle" : IdleState(self),
+            "walking" : WalkingState(self),
+            "jump" : JumpState(self)
         }
 
         self.state = self.states["idle"]
@@ -87,14 +90,11 @@ class Fighter(pygame.sprite.Sprite):
 
         self.surface = pygame_surface
 
-        #graphics setup
-        self.animation = aseprite.get_animation('Idle')
-        self.frame_index = 0
         self.facing = 'left'
-        self.fighter_state = 'Idle'
 
         #image setup
-        self.image = self.animation[self.frame_index]
+        self.animation = aseprite.get_animation('Idle')
+        self.image = self.animation[0]
         self.rect = self.image.get_rect(topleft=pos)
 
         #float based movement
@@ -113,25 +113,14 @@ class Fighter(pygame.sprite.Sprite):
             new_state._enter_state()
             self.previous_state = self.state
             self.state = new_state
-  
 
-    def draw(self, dt):
-        self.image = self.state.animation[int(self.state.frame_index)]
-
-        if self.facing == 'left':
-            self.image = pygame.transform.flip(self.image, True, False)
-
-        self.surface.blit(self.image, self.rect)
-
-        #setting states
+    def transition_from_state_to_state(self):
         if self.direction.x != 0 and self.direction.y == 0 and self.state != self.states["walking"]:
             self.change_state(self.states["walking"])
         if self.direction.x == 0 and self.direction.y == 0 and self.state != self.states["idle"]:
             self.change_state(self.states["idle"])
         if self.direction.y != 0 and self.state != self.states["jump"]:
             self.change_state(self.states["jump"])
-
-       
 
     def input(self):
 
@@ -189,5 +178,6 @@ class Fighter(pygame.sprite.Sprite):
         self.input()
         self.move(dt)
         self.apply_gravity(dt)
+        self.transition_from_state_to_state()
         self.state.update_state(dt)
-        self.draw(dt)
+        self.state.render_state()
