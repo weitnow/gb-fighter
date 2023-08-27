@@ -49,7 +49,7 @@ class Main:
             self.screen.blit(self.background, (0, 0))
 
             self.fighter1.update(dt)
-            self.fighter2.update(dt)
+            #self.fighter2.update(dt)
             self.face_players_each_other()
  
             pygame.display.update()

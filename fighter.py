@@ -72,6 +72,50 @@ class JumpState(State):
     def _exit_state(self) -> None:
         print("Exiting JumpState")
 
+class CrouchState(State):
+    def __init__(self, actor) -> None:
+        super().__init__(actor)
+
+    def _enter_state(self) -> None:
+        self.frame_index = 0
+        self.animation = aseprite.get_animation('Crouch')
+
+    def render_state(self) -> None:
+        super().render_state()
+        
+
+    def _exit_state(self) -> None:
+        pass
+
+class A_Move_State(State):
+    def __init__(self, actor) -> None:
+        super().__init__(actor)
+
+    def _enter_state(self) -> None:
+        self.frame_index = 0
+        self.animation = aseprite.get_animation('A Move')
+
+    def render_state(self) -> None:
+        super().render_state()
+        
+
+    def _exit_state(self) -> None:
+        pass
+
+class B_Move_State(State):
+    def __init__(self, actor) -> None:
+        super().__init__(actor)
+
+    def _enter_state(self) -> None:
+        self.frame_index = 0
+        self.animation = aseprite.get_animation('B Move')
+
+    def render_state(self) -> None:
+        super().render_state()
+        
+
+    def _exit_state(self) -> None:
+        pass
 
 ##########################################################################
 
@@ -82,7 +126,10 @@ class Fighter(pygame.sprite.Sprite):
         self.states = {
             "idle" : IdleState(self),
             "walking" : WalkingState(self),
-            "jump" : JumpState(self)
+            "jump" : JumpState(self),
+            "crouch" : CrouchState(self),
+            "a move" : A_Move_State(self),
+            "b move" : B_Move_State(self)
         }
 
         self.state = self.states["idle"]
@@ -142,8 +189,11 @@ class Fighter(pygame.sprite.Sprite):
             self.direction.y = -self.jump_speed
             self.on_floor = False
 
-        if joystick.a_pressed and self.on_floor:
-            pass
+        if joystick.a_pressed:
+            self.change_state(self.states['a move'])
+
+        if joystick.b_pressed:
+            self.change_state(self.states['b move'])
 
     def move(self, dt):
         if self.ai:
@@ -178,6 +228,6 @@ class Fighter(pygame.sprite.Sprite):
         self.input()
         self.move(dt)
         self.apply_gravity(dt)
-        self.transition_from_state_to_state()
+        #self.transition_from_state_to_state()
         self.state.update_state(dt)
         self.state.render_state()
