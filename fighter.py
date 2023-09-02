@@ -13,16 +13,18 @@ class Fighter(pygame.sprite.Sprite):
             "walking" : WalkingState(self),
             "jump" : JumpState(self),
             "crouch" : CrouchState(self),
-            "a move" : A_Move_State(self),
-            "b move" : B_Move_State(self)
+            "a move" : A_Move_State(self),  #kicking
+            "b move" : B_Move_State(self)   #punching
         }
-
         self.renderstate = self.get_state["idle"]
-        self.previous_state = None
-
+        
+        self.state = "idle"
+        
         self.surface = pygame_surface
 
         self.facing = 'left'
+        self.input_block = False
+        self.transition_block = False
 
         #image setup
         self.animation = aseprite.get_animation('Idle')
@@ -38,25 +40,47 @@ class Fighter(pygame.sprite.Sprite):
 
         self.ai = False
 
+        self.new_timer = None
+        self.call_back = None
+        self.ms = None
+
     def change_state(self, new_state: State):
         if new_state != self.renderstate:
             if isinstance(self.renderstate, State):
                 self.renderstate._exit_state()
             new_state._enter_state()
-            self.previous_state = self.renderstate
             self.renderstate = new_state
 
     def transition_from_state_to_state(self):
-        if self.direction.x != 0 and self.direction.y == 0 and self.renderstate != self.get_state["walking"]:
-            self.change_state(self.get_state["walking"])
-        if self.direction.x == 0 and self.direction.y == 0 and self.renderstate != self.get_state["idle"]:
-            self.change_state(self.get_state["idle"])
-        if self.direction.y != 0 and self.renderstate != self.get_state["jump"]:
-            self.change_state(self.get_state["jump"])
+        if self.transition_block:
+            return
+        
+        if self.direction.x != 0 and self.direction.y == 0 and self.state != "walking":
+            self.state = "walking"
+        if self.direction.x == 0 and self.direction.y == 0 and self.state != "idle":
+            self.state = "idle"
+        if self.direction.y != 0 and self.state != "jump":
+            self.state = "jump"
+
+    def update_state(self, dt):
+        self.change_state(self.get_state[self.state])
+        self.transition_from_state_to_state()
+        self.renderstate.update_state(dt)
+        self.renderstate.render_state()
+
+    def punch(self):
+        if self.state != "jump":
+            self.state = "b move" #punch
+            self.transition_block = True
+
+    def kick(self):
+        if self.state != "jump":
+            self.state = "a move" #kick
+
+    
 
     def input(self):
-
-        if self.ai:
+        if self.ai or self.input_block:
             return
 
         joystick.update()
@@ -74,11 +98,13 @@ class Fighter(pygame.sprite.Sprite):
             self.direction.y = -self.jump_speed
             self.on_floor = False
 
-        if joystick.a_pressed:
-            self.change_state(self.get_state['a move'])
 
+        if joystick.a_pressed:
+            self.kick()
+            
         if joystick.b_pressed:
-            self.change_state(self.get_state['b move'])
+            #self.activate_timer_callback(self.punch, 1000)
+            self.punch()
 
     def move(self, dt):
         if self.ai:
@@ -100,6 +126,23 @@ class Fighter(pygame.sprite.Sprite):
             self.rect.right = settings.game.WINDOW_WIDTH + 20
             self.pos.x = self.rect.left
 
+    
+    def activate_timer_callback(self, call_back, ms):
+        if self.new_timer is None:
+            self.new_timer = pygame.time.get_ticks()
+            self.call_back = call_back
+            self.ms = ms
+            
+
+    def update_timer(self):
+        if self.new_timer is not None:
+            if self.new_timer + self.ms <= pygame.time.get_ticks():
+                self.new_timer = None
+                self.ms = None
+                print("callback:")
+                print(self.call_back)
+                self.call_back()
+
 
     def apply_gravity(self, dt):
         if self.pos.y < 280:
@@ -113,6 +156,5 @@ class Fighter(pygame.sprite.Sprite):
         self.input()
         self.move(dt)
         self.apply_gravity(dt)
-        self.transition_from_state_to_state()
-        self.renderstate.update_state(dt)
-        self.renderstate.render_state()
+        self.update_state(dt)
+        self.update_timer()
