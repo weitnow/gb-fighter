@@ -44,6 +44,11 @@ class Fighter(pygame.sprite.Sprite):
         self.call_back = None
         self.ms = None
 
+    def change_attr(self, attr: str, val):
+        '''takes an attribute-name and a value and sets the attribute to this val \n
+        for example change_attr(transition_block, True)'''
+        setattr(self, attr, val)
+
     def change_state(self, new_state: State):
         if new_state != self.renderstate:
             if isinstance(self.renderstate, State):
@@ -71,13 +76,10 @@ class Fighter(pygame.sprite.Sprite):
     def punch(self):
         if self.state != "jump":
             self.state = "b move" #punch
-            self.transition_block = True
 
     def kick(self):
         if self.state != "jump":
             self.state = "a move" #kick
-
-    
 
     def input(self):
         if self.ai or self.input_block:
@@ -103,8 +105,14 @@ class Fighter(pygame.sprite.Sprite):
             self.kick()
             
         if joystick.b_pressed:
-            #self.activate_timer_callback(self.punch, 1000)
+            self.activate_timer_callback(self.kick, 1000)
             self.punch()
+
+        if joystick.x_pressed:
+            self.change_attr("transition_block", True)
+
+        if joystick.y_pressed:
+            pass
 
     def move(self, dt):
         if self.ai:
@@ -139,10 +147,9 @@ class Fighter(pygame.sprite.Sprite):
             if self.new_timer + self.ms <= pygame.time.get_ticks():
                 self.new_timer = None
                 self.ms = None
-                print("callback:")
                 print(self.call_back)
                 self.call_back()
-
+                eval('self.change_attr("transition_block", True)')
 
     def apply_gravity(self, dt):
         if self.pos.y < 280:
